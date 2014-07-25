@@ -1,7 +1,18 @@
+//load modules
+var $ = require('jquery');
+var _ = require('underscore');
+
+var Backbone = require('backbone');
+Backbone.$ = $;
+
+var  Marionette = require('backbone.marionette');
+
 module.exports = function(App){
 
-    var employees = (function(App, Employees){
+    var Employees = App.loadModule['employees'];
 
+   
+        console.log(App);
         console.log(Employees);
         Employees.Model = Backbone.Model.extend({
             idAttribute: '_id'
@@ -35,6 +46,4 @@ module.exports = function(App){
             },
             itemView: itemView
         });
-
-    })(App, App.loadModule['employees']);
 }

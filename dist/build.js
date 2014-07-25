@@ -15773,7 +15773,7 @@ var Menu = require('./views/menu'),
     EmployeeView = require('./views/employees');
 
 //modules
-var Employees = require('./modules/employees');
+
 
 var App = {};
 
@@ -15791,6 +15791,7 @@ App.prototype.start = function(first_argument) {
 
 App.prototype.loadModules= function(){
     //before start marionette
+    var Employees = require('./modules/employees');
     Employees(this);
 }
 
@@ -15815,8 +15816,9 @@ App.prototype.events= function(){
 
 App.prototype.loadModule = function (name){
     var modules = this.modules;
-
+    alert('done');
     if(modules[name]){
+        console.log('joder');
         return modules[name];
     }else{
         console.log(modules[name]);
@@ -15922,6 +15924,7 @@ module.exports = Backbone.Model.extend({
     idAttribute: '_id'
 });
 },{"backbone":6,"jquery":7,"underscore":8}],14:[function(require,module,exports){
+//load modules
 var $ = require('jquery');
 var _ = require('underscore');
 
@@ -15932,8 +15935,11 @@ var  Marionette = require('backbone.marionette');
 
 module.exports = function(App){
 
-    var Employees = (function(App, Employees){
+    var Employees = App.loadModule['employees'];
 
+   
+        console.log(App);
+        console.log(Employees);
         Employees.Model = Backbone.Model.extend({
             idAttribute: '_id'
         });
@@ -15966,8 +15972,6 @@ module.exports = function(App){
             },
             itemView: itemView
         });
-
-    })(App, App.loadModule['employees']);
 }
 
 },{"backbone":6,"backbone.marionette":1,"jquery":7,"underscore":8}],15:[function(require,module,exports){

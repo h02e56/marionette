@@ -15,7 +15,7 @@ var Menu = require('./views/menu'),
     EmployeeView = require('./views/employees');
 
 //modules
-var Employees = require('./modules/employees');
+
 
 var App = {};
 
@@ -33,6 +33,7 @@ App.prototype.start = function(first_argument) {
 
 App.prototype.loadModules= function(){
     //before start marionette
+    var Employees = require('./modules/employees');
     Employees(this);
 }
 
@@ -57,7 +58,7 @@ App.prototype.events= function(){
 
 App.prototype.loadModule = function (name){
     var modules = this.modules;
-
+    alert('done');
     if(modules[name]){
         return modules[name];
     }else{
