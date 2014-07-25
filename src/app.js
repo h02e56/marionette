@@ -14,6 +14,9 @@ var Menu = require('./views/menu'),
     EmployeesCollection = require('./collections/employeesCollection'),
     EmployeeView = require('./views/employees');
 
+//modules
+var Employees = require('./modules/employees');
+
 var App = {};
 
 module.exports = App = function App(){};
@@ -23,21 +26,25 @@ App.prototype.start = function(first_argument) {
     this.core = new Marionette.Application();
     
     this.events();
+    this.loadModules();
     //start marioneete instance
     this.core.start();
 };
+
+App.prototype.loadModules= function(){
+    //before start marionette
+    Employees(this);
+}
 
 App.prototype.events= function(){
     //before start marionette
     var app = this;
 
     this.core.on("before:start", function () { 
-        this.menu = new Menu();
-        this.views = {};
-        this.data = {};
-         //fetch initial data
-        
+        app.menu = new Menu();
+        app.modules = {};
     });
+
     //on start marionette instance
     this.core.vent.bind('app:start', initializeRouterAndController );
 
@@ -46,6 +53,28 @@ App.prototype.events= function(){
         console.log(message);
         fetchInitialData.call(this);
     }) 
+}
+
+App.prototype.loadModule = function (name){
+    var modules = this.modules;
+
+    if(modules[name]){
+        return modules[name];
+    }else{
+        console.log(modules[name]);
+        return modules[name] = {
+            Views:{},
+            Collection:{},
+            Model:{},
+            ItemView:{},
+            CollectionView:{}
+        };
+    }
+}
+
+App.prototype.getModule = function(name) {
+    var modules = this.modules;
+    return (modules[name]) ?  modules[name] : "module don't exist";
 }
 
 function initializeRouterAndController(options){    

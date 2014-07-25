@@ -15772,6 +15772,9 @@ var Menu = require('./views/menu'),
     EmployeesCollection = require('./collections/employeesCollection'),
     EmployeeView = require('./views/employees');
 
+//modules
+var Employees = require('./modules/employees');
+
 var App = {};
 
 module.exports = App = function App(){};
@@ -15781,19 +15784,25 @@ App.prototype.start = function(first_argument) {
     this.core = new Marionette.Application();
     
     this.events();
+    this.loadModules();
     //start marioneete instance
     this.core.start();
 };
 
+App.prototype.loadModules= function(){
+    //before start marionette
+    Employees(this);
+}
+
 App.prototype.events= function(){
     //before start marionette
-     this.core.on("before:start", function () { 
-        this.menu = new Menu();
-        this.views = {};
-        this.data = {};
-         //fetch initial data
-        
+    var app = this;
+
+    this.core.on("before:start", function () { 
+        app.menu = new Menu();
+        app.modules = {};
     });
+
     //on start marionette instance
     this.core.vent.bind('app:start', initializeRouterAndController );
 
@@ -15802,6 +15811,28 @@ App.prototype.events= function(){
         console.log(message);
         fetchInitialData.call(this);
     }) 
+}
+
+App.prototype.loadModule = function (name){
+    var modules = this.modules;
+
+    if(modules[name]){
+        return modules[name];
+    }else{
+        console.log(modules[name]);
+        return modules[name] = {
+            Views:{},
+            Collection:{},
+            Model:{},
+            ItemView:{},
+            CollectionView:{}
+        };
+    }
+}
+
+App.prototype.getModule = function(name) {
+    var modules = this.modules;
+    return (modules[name]) ?  modules[name] : "module don't exist";
 }
 
 function initializeRouterAndController(options){    
@@ -15822,7 +15853,7 @@ function fetchInitialData(){
         }
     });
 }
-},{"./collections/employeesCollection":10,"./controller":11,"./models/employee":13,"./router":14,"./views/employees":15,"./views/menu":16,"backbone":6,"backbone.marionette":1,"jquery":7,"underscore":8}],10:[function(require,module,exports){
+},{"./collections/employeesCollection":10,"./controller":11,"./models/employee":13,"./modules/employees":14,"./router":15,"./views/employees":16,"./views/menu":17,"backbone":6,"backbone.marionette":1,"jquery":7,"underscore":8}],10:[function(require,module,exports){
 //load modules
 var $ = require('jquery');
 var _ = require('underscore');
@@ -15878,6 +15909,8 @@ app.start();
 
 
 
+
+
 },{"./app":9}],13:[function(require,module,exports){
 var $ = require('jquery');
 var _ = require('underscore');
@@ -15889,6 +15922,55 @@ module.exports = Backbone.Model.extend({
     idAttribute: '_id'
 });
 },{"backbone":6,"jquery":7,"underscore":8}],14:[function(require,module,exports){
+var $ = require('jquery');
+var _ = require('underscore');
+
+var Backbone = require('backbone');
+Backbone.$ = $;
+
+var  Marionette = require('backbone.marionette');
+
+module.exports = function(App){
+
+    var Employees = (function(App, Employees){
+
+        Employees.Model = Backbone.Model.extend({
+            idAttribute: '_id'
+        });
+
+        Employees.Collection = Backbone.Collection.extend({
+            model:  Employees.Model,
+            url: '/employees'
+        });
+
+        Employees.ItemView = Marionette.ItemView.extend({
+            template: '#employees',
+            initialize: function() {
+                this.listenTo(this.model, 'change', this.render);
+            },
+            events: {
+                'click': 'showDetails'
+            },
+         
+            showDetails: function() {
+                // window.app.core.vent.trigger('app:log', 'Contacts View: showDetails hit.');
+                // window.app.controller.details(this.model.id);
+                console.log('view details');
+            }
+        });
+
+        Employees.CollectionView = Marionette.CollectionView.extend({
+            childView: Employees.ItemView,
+            initialize: function() {
+                this.listenTo(this.collection, 'change', this.render);
+            },
+            itemView: itemView
+        });
+
+    })(App, App.loadModule['employees']);
+}
+
+},{"backbone":6,"backbone.marionette":1,"jquery":7,"underscore":8}],15:[function(require,module,exports){
 var Marionette = require('backbone.marionette');
  
 module.exports = Marionette.AppRouter.extend({
@@ -15897,7 +15979,7 @@ module.exports = Marionette.AppRouter.extend({
         'employees/:id' : 'employees'
     }
 });
-},{"backbone.marionette":1}],15:[function(require,module,exports){
+},{"backbone.marionette":1}],16:[function(require,module,exports){
 var $ = require('jquery');
 var _ = require('underscore');
 
@@ -15930,7 +16012,7 @@ module.exports = Marionette.CollectionView.extend({
     },
     itemView: itemView
 });
-},{"backbone":6,"backbone.marionette":1,"jquery":7,"underscore":8}],16:[function(require,module,exports){
+},{"backbone":6,"backbone.marionette":1,"jquery":7,"underscore":8}],17:[function(require,module,exports){
 var $ = require('jquery');
 var _ = require('underscore');
 
