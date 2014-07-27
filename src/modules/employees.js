@@ -22,8 +22,8 @@ module.exports = function(App){
     });
 
     employees.Collection = Backbone.Collection.extend({
-        // model:  employees.Model,
-        // url: '/employees'
+        model:  employees.Model,
+        url: '/employees'
     });
 
     employees.ItemView = Marionette.ItemView.extend({
@@ -33,9 +33,6 @@ module.exports = function(App){
             'click': 'showDetails'
         },
         initialize: function() {
-            //collection=[{name:'josep', email:'joan'},{name:'josepas', email:'j@ss.com'}]
-            //this.render();
-            //this.listenTo(this.model, 'change', this.render);
         },
         showDetails: function() {
             // window.app.core.vent.trigger('app:log', 'Contacts View: showDetails hit.');
@@ -45,17 +42,16 @@ module.exports = function(App){
     });
 
     employees.CollectionView = Marionette.CollectionView.extend({
-        // itemView: employees.ItemView,
         tagName: 'ul',
         childView : employees.ItemView,
         initialize: function (argument) {
-            this.render();
-            //this.collection.fetch();
-            this.listenTo(this.collection, 'change', this.render);
+            //this.render();
+            //this.listenTo(this.collection, 'sync', this.paint);
         },
         onRender: function (argument) {
             // body...
             console.log(this.el);
+           
         }
     });
     

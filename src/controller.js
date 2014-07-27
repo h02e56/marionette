@@ -19,15 +19,19 @@ module.exports = Marionette.Controller.extend({
     	var EmployeesCollection = window.app.modules.employees.Collection;
 	    var EmployeesCollectionView = window.app.modules.employees.CollectionView;
 		
-		var collection = {employees:[{name:'josep', phone:'joan'},{name:'josepas', phone:'j@ss.com'}]};
+		//var collection = {employees:[{name:'josep', phone:'joan'},{name:'josepas', phone:'j@ss.com'}]};
 
-	    var employeesCollection = new EmployeesCollection(collection);
+	    var employeesCollection = new EmployeesCollection();
 
 	    var employeesView = new EmployeesCollectionView({
 	    	collection : employeesCollection
 	    });
 
-	    $('#employees').html(employeesView.el);
+	    employeesCollection.fetch({
+	    	success: function(){
+	    		 $('#employees').html(employeesView.render().el);
+	    	}
+	    });	    
     	window.app.core.router.navigate('/employees');
 
 	}

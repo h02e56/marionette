@@ -15881,15 +15881,19 @@ module.exports = Marionette.Controller.extend({
     	var EmployeesCollection = window.app.modules.employees.Collection;
 	    var EmployeesCollectionView = window.app.modules.employees.CollectionView;
 		
-		var collection = {employees:[{name:'josep', phone:'joan'},{name:'josepas', phone:'j@ss.com'}]};
+		//var collection = {employees:[{name:'josep', phone:'joan'},{name:'josepas', phone:'j@ss.com'}]};
 
-	    var employeesCollection = new EmployeesCollection(collection);
+	    var employeesCollection = new EmployeesCollection();
 
 	    var employeesView = new EmployeesCollectionView({
 	    	collection : employeesCollection
 	    });
 
-	    $('#employees').html(employeesView.el);
+	    employeesCollection.fetch({
+	    	success: function(){
+	    		 $('#employees').html(employeesView.render().el);
+	    	}
+	    });	    
     	window.app.core.router.navigate('/employees');
 
 	}
@@ -15946,8 +15950,8 @@ module.exports = function(App){
     });
 
     employees.Collection = Backbone.Collection.extend({
-        // model:  employees.Model,
-        // url: '/employees'
+        model:  employees.Model,
+        url: '/employees'
     });
 
     employees.ItemView = Marionette.ItemView.extend({
@@ -15957,9 +15961,6 @@ module.exports = function(App){
             'click': 'showDetails'
         },
         initialize: function() {
-            //collection=[{name:'josep', email:'joan'},{name:'josepas', email:'j@ss.com'}]
-            //this.render();
-            //this.listenTo(this.model, 'change', this.render);
         },
         showDetails: function() {
             // window.app.core.vent.trigger('app:log', 'Contacts View: showDetails hit.');
@@ -15969,17 +15970,16 @@ module.exports = function(App){
     });
 
     employees.CollectionView = Marionette.CollectionView.extend({
-        // itemView: employees.ItemView,
         tagName: 'ul',
         childView : employees.ItemView,
         initialize: function (argument) {
-            this.render();
-            //this.collection.fetch();
-            this.listenTo(this.collection, 'change', this.render);
+            //this.render();
+            //this.listenTo(this.collection, 'sync', this.paint);
         },
         onRender: function (argument) {
             // body...
             console.log(this.el);
+           
         }
     });
     

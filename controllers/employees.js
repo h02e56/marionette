@@ -8,7 +8,7 @@ exports.index = function(req, res) {
    	//res.render('index', {Employees : Employees.getAll()});
    	Employees.find(function (err, employees) {
   		if (err) return console.error(err);
-		res.send(employees);
+		res.send({ employees :  employees });
 	});
    	
 };
