@@ -13,3 +13,7 @@ public/bower_components
 
 #bower
 .bowerrc
+
+#provisional
+server.js
+routes/*

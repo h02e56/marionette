@@ -15982,17 +15982,7 @@ module.exports = function(App){
            
         }
     });
-    
-    // employees.CompositeView =  Marionette.CompositeView.extend({
-    //     template: '#employeesTemplate',
-    //     itemView: employees.ItemView,
-    //     itemViewContainer: "#employees",
-    //     childView: employees.ItemView,
-    //     initialize: function() {
-    //         //this.render();
-    //         //this.listenTo(this.collection, 'change', this.render);
-    //     }
-    // })
+
     return employees;
 }
 
