@@ -1,0 +1,28 @@
+<html>
+<head>
+	<title></title>
+</head>
+<body>
+	 <div id="menu">
+    	<button id="">view employees</button>
+    </div>  
+	<div id="employees"></div>
+	
+
+<!-- emploee templates-->
+<script type="text/html" id="employee-template">
+	<% _.each(employees, function(item){ %>
+		<li>
+			<input type="text" name="name" value="<%= item.name %> ">
+			<input type="text" name="phone" value="<%= item.phone %> ">
+			<button id="delete">detele</button>
+			<button id="update">update</button>
+		</li>
+	<% }); %>
+</script>
+
+
+<!-- <script type="text/javascript" src="dist/vendor.js"></script> -->
+<script type="text/javascript" src="build.js"></script>
+</body>
+</html>
