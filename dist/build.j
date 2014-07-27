@@ -15769,8 +15769,8 @@ var Controller = require('./controller'),
     Router = require('./router');
 
 //modules
-var Employees = require('./modules/employees');
-var Menu = require('./views/menu');
+var Layout = require('./modules/layout'),
+    Employees = require('./modules/employees');
 
 var App = {};
 
@@ -15788,20 +15788,9 @@ App.prototype.events= function(){
     //before start marionette
     var app = this;
 
-    this.core.on("before:start", function () { 
-        // this.addRegions({
-        //       reference to container element in the HTML file 
-        //     appRegion: '#AppBase'
-        // });   
+    this.core.on("before:start", function () {        
         app.modules = {};
         app.data = {};
-
-        //load modules
-        Employees(app);
-    });
-
-    this.core.vent.on("app:showemployees", function () { 
-        console.log('show emplo');
     });
 
     this.core.addInitializer(routerAndController);
@@ -15824,28 +15813,22 @@ function routerAndController(){
 }
 
 function createLayout(){
-    var menu = new Menu();
-
-    // var AppLayout = Marionette.LayoutView.extend({
-    //     tagName: 'div',
-    //     id:'employeesContainer',
-    //     template: '#layout-template',
-    //     regions: {
-    //         'employees' : '#employees'
-    //     },
-    //     initialize: function() {
-    //         console.log('main layout: initialize');
-    //     },
-    //     onRender: function(){
-            
-    //     }
-    // });
-    // appLayout = new AppLayout();
-
-    // window.app.core.appRegion.show(appLayout);
-    //window.app.core.appRegion.show(menu);
+    this.addRegions({
+        appRegion: '#AppBase'
+    })
+    var appLayout = new window.app.modules.AppLayout(window.app);
+   appLayout.render(); 
 }
-},{"./controller":11,"./modules/employees":14,"./router":15,"./views/menu":16,"backbone":6,"backbone.marionette":1,"jquery":7,"underscore":8}],10:[function(require,module,exports){
+function fetchInitialData(){
+    var EmployeesCollection = window.app.modules.employees.Collection;
+    var EmployeesCollectionView = window.app.modules.employees.CollectionView;
+    
+    var employeesCollection = new EmployeesCollection();
+    var employeesView = new EmployeesCollectionView({
+         collection: employeesCollection 
+    });
+}
+},{"./controller":11,"./modules/employees":14,"./modules/layout":15,"./router":16,"backbone":6,"backbone.marionette":1,"jquery":7,"underscore":8}],10:[function(require,module,exports){
 //load modules
 var $ = require('jquery');
 var _ = require('underscore');
@@ -15873,24 +15856,16 @@ var EmployeeModel = require('./models/employee'),
 
 module.exports = Marionette.Controller.extend({
 
-	 home: function () {	
-	     window.app.router.navigate('#');
+	 home: function () {
+	    
+	     window.app.router.navigate('/employees');
 	 },
 
 	employees: function(){
-    	var EmployeesCollection = window.app.modules.employees.Collection;
-	    var EmployeesCollectionView = window.app.modules.employees.CollectionView;
-		
-		var collection = {employees:[{name:'josep', phone:'joan'},{name:'josepas', phone:'j@ss.com'}]};
-
-	    var employeesCollection = new EmployeesCollection(collection);
-
-	    var employeesView = new EmployeesCollectionView({
-	    	collection : employeesCollection
-	    });
-
-	    $('#employees').html(employeesView.el);
-    	window.app.core.router.navigate('/employees');
+		//window.app.router.navigate('/employees');
+		var view = window.app.core.views.employeesView;
+	    this.renderView(view);
+    	window.app.core.router.navigate('/employees');	
 
 	}
 })
@@ -15939,27 +15914,35 @@ module.exports = function(App){
         
     employees.Model = Backbone.Model.extend({
         defaults:{
-            name:'josep',
-            email:'sds'
+            name:'',
+            email:''
         },
         idAttribute: '_id'
     });
 
     employees.Collection = Backbone.Collection.extend({
-        // model:  employees.Model,
-        // url: '/employees'
+        model:  employees.Model,
+        url: '/employees',
+        initialize: function() {
+            //this.fetch();
+            this.collection = {
+                employees:[
+                    {name:'josep', email:'joan'},
+                    {name:'josepas', email:'j@ss.com'}
+                    ]
+            }
+        }
     });
 
     employees.ItemView = Marionette.ItemView.extend({
-        tagName: 'li',
         template: '#employee-template',
+        tagName: 'li',
         events: {
             'click': 'showDetails'
         },
         initialize: function() {
-            //collection=[{name:'josep', email:'joan'},{name:'josepas', email:'j@ss.com'}]
-            //this.render();
-            //this.listenTo(this.model, 'change', this.render);
+            this.render();
+            this.listenTo(this.model, 'change', this.render);
         },
         showDetails: function() {
             // window.app.core.vent.trigger('app:log', 'Contacts View: showDetails hit.');
@@ -15969,18 +15952,21 @@ module.exports = function(App){
     });
 
     employees.CollectionView = Marionette.CollectionView.extend({
-        // itemView: employees.ItemView,
         tagName: 'ul',
-        childView : employees.ItemView,
-        initialize: function (argument) {
-            this.render();
-            //this.collection.fetch();
-            this.listenTo(this.collection, 'change', this.render);
+        itemView: employees.ItemView,
+        collection:{},
+        initialize: function() {
+            // this.collection = new employees.Collection();
+            // this.collection.fetch();
+            window.app.data.employees = this.collection;
+            // this.render();
+            // this.listenTo(this.collection, 'change', this.render);
+            console.log(window.app);
         },
-        onRender: function (argument) {
-            // body...
-            console.log(this.el);
-        }
+        // onRender: function(){
+        //     console.log('rendered');
+        // },
+        
     });
     
     // employees.CompositeView =  Marionette.CompositeView.extend({
@@ -15997,15 +15983,7 @@ module.exports = function(App){
 }
 
 },{"backbone":6,"backbone.marionette":1,"jquery":7,"underscore":8}],15:[function(require,module,exports){
-var Marionette = require('backbone.marionette');
- 
-module.exports = Marionette.AppRouter.extend({
-    appRoutes: {
-    	'#' : 'home',
-        'employees/' : 'employees'
-    }
-});
-},{"backbone.marionette":1}],16:[function(require,module,exports){
+//load modules
 var $ = require('jquery');
 var _ = require('underscore');
 
@@ -16013,16 +15991,32 @@ var Backbone = require('backbone');
 Backbone.$ = $;
 
 var  Marionette = require('backbone.marionette');
+
+module.exports = function(App){
+    
+
+    App.modules.AppLayout =  Marionette.LayoutView.extend({
+        tagName: 'div',
+        id:'employeesContainer',
+        template: '#layout-template',
+        regions: {
+            'employees': '#employees'
+        },
+        initialize: function() {
+            console.log('main layout: initialize');
+        }
+    });
+
+    return AppLayout.init;
+}
+
+},{"backbone":6,"backbone.marionette":1,"jquery":7,"underscore":8}],16:[function(require,module,exports){
+var Marionette = require('backbone.marionette');
  
-module.exports  = Marionette.ItemView.extend({
-    el:"#menu",
-    events: {
-        'click button': 'show'
-    },
-    initialize: function() {
-    },
-    show: function(e) {
-    	window.app.core.controller.employees();
+module.exports = Marionette.AppRouter.extend({
+    appRoutes: {
+    	'/' : 'home',
+        'employees/:id' : 'employees'
     }
 });
-},{"backbone":6,"backbone.marionette":1,"jquery":7,"underscore":8}]},{},[12])
+},{"backbone.marionette":1}]},{},[12])

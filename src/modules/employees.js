@@ -8,42 +8,66 @@ Backbone.$ = $;
 var  Marionette = require('backbone.marionette');
 
 module.exports = function(App){
+    
+    var employees;
 
-    var Employees = App.loadModule['employees'];
+    App.modules.employees = employees = {};
+        
+    employees.Model = Backbone.Model.extend({
+        defaults:{
+            name:'josep',
+            email:'sds'
+        },
+        idAttribute: '_id'
+    });
 
-   
-        console.log(App);
-        console.log(Employees);
-        Employees.Model = Backbone.Model.extend({
-            idAttribute: '_id'
-        });
+    employees.Collection = Backbone.Collection.extend({
+        // model:  employees.Model,
+        // url: '/employees'
+    });
 
-        Employees.Collection = Backbone.Collection.extend({
-            model:  Employees.Model,
-            url: '/employees'
-        });
+    employees.ItemView = Marionette.ItemView.extend({
+        tagName: 'li',
+        template: '#employee-template',
+        events: {
+            'click': 'showDetails'
+        },
+        initialize: function() {
+            //collection=[{name:'josep', email:'joan'},{name:'josepas', email:'j@ss.com'}]
+            //this.render();
+            //this.listenTo(this.model, 'change', this.render);
+        },
+        showDetails: function() {
+            // window.app.core.vent.trigger('app:log', 'Contacts View: showDetails hit.');
+            // window.app.controller.details(this.model.id);
+            console.log('view details');
+        }
+    });
 
-        Employees.ItemView = Marionette.ItemView.extend({
-            template: '#employees',
-            initialize: function() {
-                this.listenTo(this.model, 'change', this.render);
-            },
-            events: {
-                'click': 'showDetails'
-            },
-         
-            showDetails: function() {
-                // window.app.core.vent.trigger('app:log', 'Contacts View: showDetails hit.');
-                // window.app.controller.details(this.model.id);
-                console.log('view details');
-            }
-        });
-
-        Employees.CollectionView = Marionette.CollectionView.extend({
-            childView: Employees.ItemView,
-            initialize: function() {
-                this.listenTo(this.collection, 'change', this.render);
-            },
-            itemView: itemView
-        });
+    employees.CollectionView = Marionette.CollectionView.extend({
+        // itemView: employees.ItemView,
+        tagName: 'ul',
+        childView : employees.ItemView,
+        initialize: function (argument) {
+            this.render();
+            //this.collection.fetch();
+            this.listenTo(this.collection, 'change', this.render);
+        },
+        onRender: function (argument) {
+            // body...
+            console.log(this.el);
+        }
+    });
+    
+    // employees.CompositeView =  Marionette.CompositeView.extend({
+    //     template: '#employeesTemplate',
+    //     itemView: employees.ItemView,
+    //     itemViewContainer: "#employees",
+    //     childView: employees.ItemView,
+    //     initialize: function() {
+    //         //this.render();
+    //         //this.listenTo(this.collection, 'change', this.render);
+    //     }
+    // })
+    return employees;
 }

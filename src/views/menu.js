@@ -7,13 +7,13 @@ Backbone.$ = $;
 var  Marionette = require('backbone.marionette');
  
 module.exports  = Marionette.ItemView.extend({
-    el: '#menu',
+    el:"#menu",
     events: {
-        'click': 'showEmployees'
+        'click button': 'show'
     },
     initialize: function() {
     },
-    showEmployees: function() {
-        window.app.core.vent.trigger('app:showEmployees', 'loading data');
+    show: function(e) {
+    	window.app.core.controller.employees();
     }
 });

@@ -11,16 +11,24 @@ var EmployeeModel = require('./models/employee'),
 
 module.exports = Marionette.Controller.extend({
 
-	 home: function () {
-	    
-	     window.app.router.navigate('/employees');
+	 home: function () {	
+	     window.app.router.navigate('#');
 	 },
 
 	employees: function(){
-		//window.app.router.navigate('/employees');
-		var view = window.app.core.views.employeesView;
-	    this.renderView(view);
-    	window.app.core.router.navigate('/employees');	
+    	var EmployeesCollection = window.app.modules.employees.Collection;
+	    var EmployeesCollectionView = window.app.modules.employees.CollectionView;
+		
+		var collection = {employees:[{name:'josep', phone:'joan'},{name:'josepas', phone:'j@ss.com'}]};
+
+	    var employeesCollection = new EmployeesCollection(collection);
+
+	    var employeesView = new EmployeesCollectionView({
+	    	collection : employeesCollection
+	    });
+
+	    $('#employees').html(employeesView.el);
+    	window.app.core.router.navigate('/employees');
 
 	}
 })

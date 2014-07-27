@@ -7,15 +7,12 @@ Backbone.$ = $;
 
 var  Marionette = require('backbone.marionette');
 
-var Menu = require('./views/menu'),
-    Controller = require('./controller'),
-    Router = require('./router'),
-    EmployeeModel = require('./models/employee'),
-    EmployeesCollection = require('./collections/employeesCollection'),
-    EmployeeView = require('./views/employees');
+var Controller = require('./controller'),
+    Router = require('./router');
 
 //modules
-
+var Employees = require('./modules/employees');
+var Menu = require('./views/menu');
 
 var App = {};
 
@@ -24,53 +21,34 @@ module.exports = App = function App(){};
 
 App.prototype.start = function(first_argument) {
     this.core = new Marionette.Application();
-    
     this.events();
-    this.loadModules();
     //start marioneete instance
     this.core.start();
 };
-
-App.prototype.loadModules= function(){
-    //before start marionette
-    var Employees = require('./modules/employees');
-    Employees(this);
-}
 
 App.prototype.events= function(){
     //before start marionette
     var app = this;
 
     this.core.on("before:start", function () { 
-        app.menu = new Menu();
+        // this.addRegions({
+        //       reference to container element in the HTML file 
+        //     appRegion: '#AppBase'
+        // });   
         app.modules = {};
+        app.data = {};
+
+        //load modules
+        Employees(app);
     });
 
-    //on start marionette instance
-    this.core.vent.bind('app:start', initializeRouterAndController );
+    this.core.vent.on("app:showemployees", function () { 
+        console.log('show emplo');
+    });
 
-    //load employees
-    this.core.vent.on("app:showEmployees", function (message) {
-        console.log(message);
-        fetchInitialData.call(this);
-    }) 
-}
+    this.core.addInitializer(routerAndController);
 
-App.prototype.loadModule = function (name){
-    var modules = this.modules;
-    alert('done');
-    if(modules[name]){
-        return modules[name];
-    }else{
-        console.log(modules[name]);
-        return modules[name] = {
-            Views:{},
-            Collection:{},
-            Model:{},
-            ItemView:{},
-            CollectionView:{}
-        };
-    }
+    this.core.on('start', createLayout);
 }
 
 App.prototype.getModule = function(name) {
@@ -78,21 +56,34 @@ App.prototype.getModule = function(name) {
     return (modules[name]) ?  modules[name] : "module don't exist";
 }
 
-function initializeRouterAndController(options){    
-    //create controller and router
+function routerAndController(){
     if (Backbone.history) {              
         this.controller = new Controller();
-        this.router = new Router({ controller : this.controller })
+        this.router = new Router({ controller : this.controller });
         Backbone.history.start();
         console.log('created router and controller');
-    }   
+    }
 }
 
-function fetchInitialData(){
-    var employees = new EmployeesCollection();
-    employees.fetch({
-        success: function() {
-            app.core.data.employees = employees;
-        }
-    });
+function createLayout(){
+    var menu = new Menu();
+
+    // var AppLayout = Marionette.LayoutView.extend({
+    //     tagName: 'div',
+    //     id:'employeesContainer',
+    //     template: '#layout-template',
+    //     regions: {
+    //         'employees' : '#employees'
+    //     },
+    //     initialize: function() {
+    //         console.log('main layout: initialize');
+    //     },
+    //     onRender: function(){
+            
+    //     }
+    // });
+    // appLayout = new AppLayout();
+
+    // window.app.core.appRegion.show(appLayout);
+    //window.app.core.appRegion.show(menu);
 }
